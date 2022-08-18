@@ -31,7 +31,7 @@ const CompanyCard = (props) => {
         />
         <CardMedia className={classes.media}>
           <img
-            className={classes.media}
+            className={classes.img}
             alt="product"
             src={props.companyInfo.logo}
           />

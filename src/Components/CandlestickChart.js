@@ -30,7 +30,7 @@ const CandlestickChart = (props) => {
         type="candlestick"
         height={350}
       />
-      // {console.log(chartConfig.series)}
+      {console.log(chartConfig.series)}
     </div>
   );
 };
