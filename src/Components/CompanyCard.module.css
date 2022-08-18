@@ -1,0 +1,26 @@
+.root {
+  max-width: 375;
+  max-height: 600;
+  background-color: "#ffdba1";
+  text-align: center;
+}
+
+.media {
+  height: 250;
+  max-height: 250;
+  max-width: 400;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}
+.header {
+  height: 100;
+  text-align: center;
+  font-style: normal;
+}
+
+.img {
+  width: 600;
+  height: 600;
+}
