@@ -11,29 +11,47 @@ import CandlestickChart from "./Components/CandlestickChart";
 import Card from "./Components/Card";
 
 function App() {
+  const finnhub = require("finnhub");
+
+  const api_key = finnhub.ApiClient.instance.authentications["api_key"];
+  api_key.apiKey = "cbtot8aad3i651t1e010";
+  const finnhubClient = new finnhub.DefaultApi();
+
   const [searchValue, setSearchValue] = useState("");
   const [companyInfo, setCompanyInfo] = useState({});
   const [isClicked, setIsClicked] = useState(false);
   const [chartDataReady, setChartData] = useState([]);
   const [errorMessage, setErrorMessage] = useState(false);
+  const [errorMessageForDigits, setErrorMessageForDigits] = useState(false);
   const [isCompanyAttributeValid, setIsCompanyAttributeValid] = useState(true);
+  const [displayChart, setDisplayChart] = useState(false);
   const chartData = [];
+
+  const reg_name_lastname = /^[a-zA-Z\s]*$/;
 
   const handleChange = (event) => {
     setSearchValue(event.target.value);
     if (event.target.value.length === 35) {
       setErrorMessage(true);
     } else setErrorMessage(false);
+
+    if (!reg_name_lastname.test(event.target.value)) {
+      setErrorMessageForDigits(true);
+    } else setErrorMessageForDigits(false);
   };
 
   const buttonClickHandler = () => {
+    setDisplayChart(false);
     setIsClicked(true);
 
-    const finnhub = require("finnhub");
-
-    const api_key = finnhub.ApiClient.instance.authentications["api_key"];
-    api_key.apiKey = "cbtot8aad3i651t1e010";
-    const finnhubClient = new finnhub.DefaultApi();
+    const requestOptions = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title: searchValue }),
+    };
+    fetch("https://localhost:5000/action", requestOptions)
+      .then((response) => response.json())
+      .then((data) => this.setState({ postId: data.id }));
 
     finnhubClient.companyProfile2(
       { symbol: searchValue },
@@ -52,7 +70,22 @@ function App() {
         }
       }
     );
+  };
 
+  const [pickedDate, setPickedDate] = useState([
+    {
+      startDate: new Date(),
+      endDate: addDays(new Date(), 7),
+      key: "selection",
+    },
+  ]);
+
+  const unixStartDate = Math.floor(pickedDate[0].startDate.getTime() / 1000);
+  const unixEndDate = Math.floor(pickedDate[0].endDate.getTime() / 1000);
+  console.log(unixStartDate);
+  console.log(unixEndDate);
+
+  const cardHeaderClickHandler = () => {
     finnhubClient.stockCandles(
       "AAPL",
       "D",
@@ -82,26 +115,19 @@ function App() {
         console.log(chartDataReady);
       }
     );
+    setDisplayChart(true);
   };
 
-  const [state, setState] = useState([
-    {
-      startDate: new Date(),
-      endDate: addDays(new Date(), 7),
-      key: "selection",
-    },
-  ]);
-
-  const unixStartDate = Math.floor(state[0].startDate.getTime() / 1000);
-  const unixEndDate = Math.floor(state[0].endDate.getTime() / 1000);
-  console.log(unixStartDate);
-  console.log(unixEndDate);
+  //Validation to the user_name input field
 
   return (
     <div className="main">
       <h1>Search Company</h1>
       {errorMessage && (
         <p className="error">Can only enter up to 35 symbols!</p>
+      )}
+      {errorMessageForDigits && (
+        <p className="error">Can only enter letters and space!</p>
       )}
       <div className="search">
         <TextField
@@ -119,10 +145,10 @@ function App() {
       </div>
       <Button onClick={buttonClickHandler}>Search</Button>
       <DateRangePicker
-        onChange={(item) => setState([item.selection])}
+        onChange={(item) => setPickedDate([item.selection])}
         showSelectionPreview={true}
         moveRangeOnFirstSelection={false}
-        ranges={state}
+        ranges={pickedDate}
         direction="horizontal"
         rangeColors={["purple"]}
         color="purple"
@@ -133,9 +159,14 @@ function App() {
         </Card>
       )}
       {isClicked && isCompanyAttributeValid && (
-        <CompanyCard companyInfo={companyInfo}></CompanyCard>
+        <CompanyCard
+          companyInfo={companyInfo}
+          onClick={cardHeaderClickHandler}
+        ></CompanyCard>
       )}
-      <CandlestickChart chartData={chartDataReady}></CandlestickChart>
+      {displayChart && (
+        <CandlestickChart chartData={chartDataReady}></CandlestickChart>
+      )}
     </div>
   );
 }

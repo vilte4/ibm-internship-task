@@ -10,10 +10,6 @@ import classes from "./CompanyCard.module.css";
 import buttonClasses from "./Button.module.css";
 
 const CompanyCard = (props) => {
-  const cardHeaderClickHandler = () => {
-    console.log("labas");
-  };
-
   return (
     <div>
       <Card
@@ -27,7 +23,7 @@ const CompanyCard = (props) => {
           title={props.companyInfo.name}
           className={buttonClasses.button}
           style={{ borderRadius: "0px" }}
-          onClick={cardHeaderClickHandler}
+          onClick={props.onClick}
         />
         <CardMedia className={classes.media}>
           <img
