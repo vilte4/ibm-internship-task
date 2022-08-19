@@ -9,6 +9,7 @@ import { DateRangePicker } from "react-date-range";
 import CompanyCard from "./Components/CompanyCard";
 import CandlestickChart from "./Components/CandlestickChart";
 import Card from "./Components/Card";
+import axios from "axios";
 
 function App() {
   const finnhub = require("finnhub");
@@ -44,15 +45,7 @@ function App() {
     setDisplayChart(false);
     setIsClicked(true);
 
-    const requestOptions = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: searchValue }),
-    };
-    console.log(JSON.stringify({ title: searchValue }));
-    fetch("http://localhost:5000/action", requestOptions)
-      .then((response) => response.json())
-      .then((data) => this.setState({ postId: data.id }));
+    axios.post("/action", { user_searched_value: searchValue });
 
     finnhubClient.companyProfile2(
       { symbol: searchValue },
@@ -116,6 +109,7 @@ function App() {
         console.log(chartDataReady);
       }
     );
+    axios.post("/action", { price_history: chartDataReady });
     setDisplayChart(true);
   };
 
