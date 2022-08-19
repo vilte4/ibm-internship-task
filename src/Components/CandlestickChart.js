@@ -8,7 +8,7 @@ const CandlestickChart = (props) => {
         height: 350,
       },
       title: {
-        text: "CandleStick Chart",
+        text: `${props.companySymbol} Chart`,
         align: "left",
       },
       xaxis: {
@@ -30,7 +30,6 @@ const CandlestickChart = (props) => {
         type="candlestick"
         height={350}
       />
-      {console.log(props.chartData)}
     </div>
   );
 };

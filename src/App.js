@@ -21,7 +21,7 @@ function App() {
   const [searchValue, setSearchValue] = useState("");
   const [companyInfo, setCompanyInfo] = useState({});
   const [isClicked, setIsClicked] = useState(false);
-  const [chartDataReady, setChartData] = useState([]);
+  const [chartDataReady, setChartDataReady] = useState([]);
   const [errorMessage, setErrorMessage] = useState(false);
   const [errorMessageForDigits, setErrorMessageForDigits] = useState(false);
   const [isCompanyAttributeValid, setIsCompanyAttributeValid] = useState(true);
@@ -45,7 +45,7 @@ function App() {
     setDisplayChart(false);
     setIsClicked(true);
 
-    axios.post("/action", { user_searched_value: searchValue });
+    axios.post("/search-action", { user_searched_value: searchValue });
 
     finnhubClient.companyProfile2(
       { symbol: searchValue },
@@ -69,28 +69,21 @@ function App() {
   const [pickedDate, setPickedDate] = useState([
     {
       startDate: new Date(),
-      endDate: addDays(new Date(), 7),
+      endDate: new Date(),
       key: "selection",
     },
   ]);
 
   const unixStartDate = Math.floor(pickedDate[0].startDate.getTime() / 1000);
   const unixEndDate = Math.floor(pickedDate[0].endDate.getTime() / 1000);
-  console.log(unixStartDate);
-  console.log(unixEndDate);
 
   const cardHeaderClickHandler = () => {
     finnhubClient.stockCandles(
-      "AAPL",
+      searchValue.toUpperCase(),
       "D",
       unixStartDate,
       unixEndDate,
       (error, data, response) => {
-        // console.log(data.c);
-        const number = data.c.length;
-        // console.log(number);
-        // console.log(loadedChartData);
-
         for (let i = 0; i < data.c.length; i++) {
           let unix_timestamp = data.t[i];
           var date = new Date(unix_timestamp * 1000);
@@ -100,20 +93,20 @@ function App() {
           });
         }
 
-        setChartData([
+        setChartDataReady([
           {
             data: chartData,
           },
         ]);
 
-        console.log(chartDataReady);
+        axios.post("/price-action", {
+          price_history: chartData,
+        });
       }
     );
-    axios.post("/action", { price_history: chartDataReady });
+
     setDisplayChart(true);
   };
-
-  //Validation to the user_name input field
 
   return (
     <div className="main">
@@ -160,7 +153,10 @@ function App() {
         ></CompanyCard>
       )}
       {displayChart && (
-        <CandlestickChart chartData={chartDataReady}></CandlestickChart>
+        <CandlestickChart
+          chartData={chartDataReady}
+          companySymbol={companyInfo.name}
+        ></CandlestickChart>
       )}
     </div>
   );

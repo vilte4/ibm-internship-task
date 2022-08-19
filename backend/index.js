@@ -11,7 +11,12 @@ app.get("/health", (req, res) => {
   res.status(200).send("OK");
 });
 
-app.post("/action", (req, res) => {
+app.post("/price-action", (req, res) => {
+  res.status(200).send("okey");
+  console.log(req.body.price_history);
+});
+
+app.post("/search-action", (req, res) => {
   res.status(200).send("okey");
   console.log(req.body);
 });
