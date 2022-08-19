@@ -49,7 +49,8 @@ function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title: searchValue }),
     };
-    fetch("https://localhost:5000/action", requestOptions)
+    console.log(JSON.stringify({ title: searchValue }));
+    fetch("http://localhost:5000/action", requestOptions)
       .then((response) => response.json())
       .then((data) => this.setState({ postId: data.id }));
 
